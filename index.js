@@ -1,12 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { Router, Route, Link, browserHistory } from 'react-router'
 import Header from './src/header';
-import Body from './src/body';
+import PokemonList from './src/pokemon-list';
+import PokemonDetails from './src/pokemon-details';
 
 var App = ({name}) =>
     <div>
         <Header />
-        <Body />
+        <PokemonList />
     </div>;
 
 ReactDOM.render(

@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "capitalize": "^1.0.0",
     "jquery": "^2.1.4",
     "materialize-css": "^0.97.3",
     "qwest": "^4.4.5",
