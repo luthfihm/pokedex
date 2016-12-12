@@ -1,14 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {Navbar, NavItem, Icon} from 'react-materialize';
+import Header from './src/header';
+import Body from './src/body';
 
-const App = ({name}) =>
-    <Navbar brand='Pokedex' right>
-        <NavItem href='#'><Icon>search</Icon></NavItem>
-        <NavItem href='#'><Icon>view_module</Icon></NavItem>
-        <NavItem href='#'><Icon>refresh</Icon></NavItem>
-        <NavItem href='#'><Icon>more_vert</Icon></NavItem>
-    </Navbar>;
+var App = ({name}) =>
+    <div>
+        <Header />
+        <Body />
+    </div>;
 
 ReactDOM.render(
   <App />, document.querySelector('.react-root')
