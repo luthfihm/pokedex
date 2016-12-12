@@ -1,7 +1,7 @@
 Get started
 ===========
 
-This is an example setup for react-materialize and webpack.
+This is an example for Pokedex website with React.
 
 run the example with:
 
