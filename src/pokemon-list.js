@@ -20,10 +20,37 @@ class PokemonList extends Component {
 
         this.state = {
             pokemons: [],
+            allPokemons: [],
             hasMoreItems: true,
-            nextHref: null
+            nextHref: null,
+            searchQuery: ''
         };
+
+        this.handleChange = this.handleChange.bind(this);
     }
+
+    handleChange(event) {
+        var query = event.target.value;
+        this.setState({
+            searchQuery: query
+        });
+        if (query == '') {
+            this.setState({
+                hasMoreItems: true
+            });
+        } else {
+            var pokemons = [];
+            this.state.allPokemons.map((pokemon) => {
+                if (pokemon.name.search(query) != -1) {
+                    pokemons.push(pokemon);
+                }
+            });
+            this.setState({
+                pokemons: pokemons,
+                hasMoreItems: false
+            });
+        }
+    };
 
     loadItems(page) {
         var self = this;
@@ -33,24 +60,34 @@ class PokemonList extends Component {
             url = this.state.nextHref;
         }
 
-        qwest.get(url, {limit: 12}, {cache: true})
+        qwest.get(url, {limit: 6}, {cache: true})
             .then(function (xhr,resp) {
                 if (resp) {
                     var pokemons = self.state.pokemons;
+                    var allPokemons = self.state.allPokemons;
                     resp.results.map((pokemon) => {
-                        // pokemons.push(pokemon);
                         qwest.get(pokemon.url, {}, {cache:true, async: false})
                             .then(function (xhr, res) {
                                 if (res) {
-                                    pokemons[res.id] = res;
+                                    allPokemons[res.id] = res;
+                                    if (pokemon.name.search(self.state.searchQuery) != -1) {
+                                        pokemons[res.id] = res;
+                                    }
                                 }
                             })
                             .send();
                     });
 
+                    if (self.state.searchQuery == '')
+                        pokemons = allPokemons;
+
+                    self.setState({
+                        pokemons: pokemons,
+                        allPokemons: allPokemons
+                    });
+
                     if (resp.next) {
                         self.setState({
-                            pokemons: pokemons,
                             nextHref: resp.next
                         });
                     } else {
@@ -124,7 +161,6 @@ class PokemonList extends Component {
                     </tr>
                 );
             });
-            console.log(naturalMoves);
             return (
                 <div>
                     <h5>Natural Moves</h5>
@@ -162,7 +198,7 @@ class PokemonList extends Component {
                     </tr>
                 );
             });
-            console.log(machineMoves);
+            
             return (
                 <div>
                     <h5>Machine Moves</h5>
@@ -200,7 +236,7 @@ class PokemonList extends Component {
                     </tr>
                 );
             });
-            console.log(tutorMoves);
+            
             return (
                 <div>
                     <h5>Tutor Moves</h5>
@@ -238,7 +274,7 @@ class PokemonList extends Component {
                     </tr>
                 );
             });
-            console.log(eggMoves);
+            
             return (
                 <div>
                     <h5>Egg Moves</h5>
@@ -277,15 +313,16 @@ class PokemonList extends Component {
                 </Col>
             </Row>;
         var items = [];
+        self = this;
         this.state.pokemons.map((pokemon, i) => {
             items.push(
                 <Col s={2}>
                     <Modal
                         header={capitalize.words(pokemon.name)}
                         trigger={
-                            <Card header={<CardTitle image={pokemon.sprites.front_default} waves='light'/>}
-                                title={capitalize.words(pokemon.name)}>
-                            </Card>
+                                <Card header={<CardTitle image={pokemon.sprites.front_default} waves='light' />}
+                                    title={capitalize.words(pokemon.name)}>
+                                </Card>
                         }>
                         <Row>
                             <Col s={4}>
@@ -294,12 +331,12 @@ class PokemonList extends Component {
                             <Col s={8}>
                                 <Table>
                                     <tbody>
-                                        <tr>
-                                            <td colSpan={3}>
-                                                {this.loadTypes(pokemon.types)}
-                                            </td>
-                                        </tr>
-                                        {this.loadStats(pokemon.stats)}
+                                    <tr>
+                                        <td colSpan={3}>
+                                            {this.loadTypes(pokemon.types)}
+                                        </td>
+                                    </tr>
+                                    {this.loadStats(pokemon.stats)}
                                     </tbody>
                                 </Table>
                             </Col>
@@ -309,14 +346,14 @@ class PokemonList extends Component {
                                 <h4>Profile</h4>
                                 <Table>
                                     <tbody>
-                                        <tr>
-                                            <td width="20%">Height:</td><td width="30%">{pokemon.height/10} m</td>
-                                            <td width="20%">Weight:</td><td width="30%">{pokemon.weight/10} kg</td>
-                                        </tr>
-                                        <tr>
-                                            <td width="20%">Abilities:</td><td width="30%">{this.loadAbilities(pokemon.abilities)}</td>
-                                            <td width="20%">Base Experience:</td><td width="30%">{pokemon.base_experience}</td>
-                                        </tr>
+                                    <tr>
+                                        <td width="20%">Height:</td><td width="30%">{pokemon.height/10} m</td>
+                                        <td width="20%">Weight:</td><td width="30%">{pokemon.weight/10} kg</td>
+                                    </tr>
+                                    <tr>
+                                        <td width="20%">Abilities:</td><td width="30%">{this.loadAbilities(pokemon.abilities)}</td>
+                                        <td width="20%">Base Experience:</td><td width="30%">{pokemon.base_experience}</td>
+                                    </tr>
                                     </tbody>
                                 </Table>
                             </Col>
@@ -338,12 +375,13 @@ class PokemonList extends Component {
             <div>
                 <Row>
                     <Col s={3}/>
-                    <Input type="text" placeholder="Search" s={6} />
+                    <Input type="text" placeholder="Search" s={6} onChange={this.handleChange} />
                 </Row>
                 <InfiniteScroll
                     pageStart={0}
                     loadMore={this.loadItems.bind(this)}
                     hasMore={this.state.hasMoreItems}
+                    threshold={100}
                     loader={loader}>
 
                     <Row>
